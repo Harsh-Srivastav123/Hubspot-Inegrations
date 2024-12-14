@@ -23,7 +23,7 @@ const ContactsScreen = ({
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({});
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-    const [error, setError] = useState(null);
+    // const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchContacts({

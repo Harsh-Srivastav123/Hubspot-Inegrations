@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import LoginScreen from './screens/LoginScreen';
+import { useEffect, useState } from 'react';
 import ContactsScreen from './screens/ContactsScreen';
-import { checkConnectionStatus } from './utils/api';
+import LoginScreen from './screens/LoginScreen';
 
 export const HubSpotIntegration = ({ user, org, integrationParams, setIntegrationParams }) => {
     const [isConnected, setIsConnected] = useState(false);

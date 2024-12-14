@@ -20,7 +20,7 @@ const ContactsList = ({
 }) => {
     const [selectedContact, setSelectedContact] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
-    const [error, setError] = useState(null);
+    // const [error, setError] = useState(null);    
 
     const handleEdit = (contact) => {
         setSelectedContact(contact);

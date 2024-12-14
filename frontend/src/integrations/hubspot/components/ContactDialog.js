@@ -20,7 +20,7 @@ const ContactDialog = ({
 }) => {
     const isEdit = Boolean(contact);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState(null);
+    // const [error, setError] = useState(null);
     const [formData, setFormData] = useState({
         firstname: contact?.firstname || '',
         lastname: contact?.lastname || '',
