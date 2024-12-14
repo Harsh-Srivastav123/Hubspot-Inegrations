@@ -1,26 +1,23 @@
-import { useState } from 'react';
 import {
-    Card,
-    CardContent,
-    CardActions,
-    Typography,
-    Box,
-    Avatar,
-    IconButton,
-    Collapse,
-    Tooltip
-} from '@mui/material';
-import {
-    Person as PersonIcon,
     Business as BusinessIcon,
-    Email as EmailIcon,
-    Phone as PhoneIcon,
-    Edit as EditIcon,
     Delete as DeleteIcon,
-    ExpandMore as ExpandMoreIcon
+    Edit as EditIcon,
+    Email as EmailIcon,
+    ExpandMore as ExpandMoreIcon,
+    Phone as PhoneIcon
 } from '@mui/icons-material';
-import { formatContactName, formatPhoneNumber, formatDate } from '../utils/helpers';
-import FileUploader from './FileUploader';
+import {
+    Avatar,
+    Box,
+    Card,
+    CardActions,
+    CardContent,
+    IconButton,
+    Tooltip,
+    Typography
+} from '@mui/material';
+import { useState } from 'react';
+import { formatContactName, formatDate, formatPhoneNumber } from '../utils/helpers';
 
 const ContactCard = ({ 
     contact, 

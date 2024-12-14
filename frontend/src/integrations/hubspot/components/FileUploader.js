@@ -45,7 +45,7 @@ const FileUploader = ({ contactId, credentials }) => {
         if (contactId && credentials) {
             loadFiles();
         }
-    }, [contactId, credentials]);
+    }, [contactId, credentials, loadFiles]);
 
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
