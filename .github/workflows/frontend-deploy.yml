@@ -1,4 +1,5 @@
-name: Frontend Deploy
+# Frontend Deployment Workflow
+name: Deploy Frontend
 
 on:
   push:
@@ -8,7 +9,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  frontend-deploy:
     name: Deploy Frontend to S3
     runs-on: ubuntu-latest
 
@@ -29,8 +30,8 @@ jobs:
           node-version: 18
 
       - name: Build Frontend
+        working-directory: ./frontend
         run: |
-          cd frontend
           npm install
           npm run build
 
