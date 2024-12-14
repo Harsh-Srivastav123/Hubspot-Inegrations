@@ -43,3 +43,8 @@ async def get_keys_with_prefix(prefix):
         print(f"{key} -> {value}")
 
     return items
+
+async def ping():
+    """Check Redis connection by sending PING command"""
+    return await redis_client.ping()
+

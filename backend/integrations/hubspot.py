@@ -7,10 +7,11 @@ import httpx
 from fastapi import Request, HTTPException
 from fastapi.responses import HTMLResponse
 
-from backend.integrations.integration_item import IntegrationItem
-from backend.redis_client import add_key_value_redis, get_value_redis, delete_key_redis, get_keys_with_prefix
-from backend.utils.logger import log
-from backend.utils.secrets import get_hubspot_secrets
+
+from integrations.integration_item import IntegrationItem
+from redis_client import add_key_value_redis, get_value_redis, delete_key_redis, get_keys_with_prefix
+from utils.logger import log
+from utils.secrets import get_hubspot_secrets
 
 # Get HubSpot configuration from secrets
 hubspot_config = get_hubspot_secrets()
@@ -339,7 +340,7 @@ async def update_contact(credentials: str, contact_id: str,
         # Ensure all property values are strings, similar to create_contact
         properties = {
             "firstname": str(contact_data.get("firstname", "")),
-            "lastname": str(contact_data.get("lastname", "")), 
+            "lastname": str(contact_data.get("lastname", "")),
             "email": str(contact_data.get("email", "")),
             "phone": str(contact_data.get("phone", "")),
             "company": str(contact_data.get("company", ""))
@@ -362,8 +363,8 @@ async def update_contact(credentials: str, contact_id: str,
             log.info(f"HubSpot response status: {response.status_code}")
             if response.status_code != 200:
                 log.error(f"HubSpot error response: {response.text}")
-                raise HTTPException(response.status_code, 
-                                  detail=f"Failed to update contact: {response.text}")
+                raise HTTPException(response.status_code,
+                                    detail=f"Failed to update contact: {response.text}")
 
             return response.json()
 

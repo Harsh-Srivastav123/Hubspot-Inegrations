@@ -5,7 +5,8 @@ import uvicorn
 from fastapi import FastAPI, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.utils.logger import log
+from redis_client import redis_client
+from utils.logger import log
 from integrations.airtable import authorize_airtable, get_items_airtable, oauth2callback_airtable, \
     get_airtable_credentials
 from integrations.hubspot import authorize_hubspot, get_hubspot_credentials, get_items_hubspot, oauth2callback_hubspot, \
@@ -16,7 +17,8 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",  # React app address
-    "http://127.0.0.1:3000",  # React app address
+    "http://127.0.0.1:3000"
+    "http://vector-hubspot.s3-website.ap-south-1.amazonaws.com",  # React app address
 ]
 
 app.add_middleware(
@@ -136,6 +138,16 @@ async def delete_hubspot_contact(
         credentials: str = Form(...)
 ):
     return await delete_contact(credentials, contact_id)
+
+
+@app.get("/health")
+async def health_check():
+    try:
+        # Check Redis connection
+        await redis_client.ping()
+        return {"status": "healthy", "redis": "connected"}
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import json
 
-from backend.utils.logger import log
+from utils.logger import log
 from .aws_configuration import get_aws_client
 
 
