@@ -23,7 +23,7 @@ const ContactsScreen = ({
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({});
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-    // const [error, setError] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchContacts({
@@ -125,6 +125,7 @@ const ContactsScreen = ({
                     }}
                 />
             </Container>
+            {error && <div style={{ color: 'red' }}>{error}</div>}
         </Box>
     );
 };
