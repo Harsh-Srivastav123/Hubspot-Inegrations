@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://vector-shift-alb-861076819.ap-south-1.elb.amazonaws.com/integrations/hubspot';
+const API_BASE_URL = 'https://9j03m9ro53.execute-api.ap-south-1.amazonaws.com/dev';
 
 // Error handler utility
 const handleApiError = (error) => {

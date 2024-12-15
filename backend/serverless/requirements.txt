@@ -1,0 +1,2 @@
+httpx==0.24.1
+aws-lambda-powertools==2.22.0

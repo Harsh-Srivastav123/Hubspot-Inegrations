@@ -6,8 +6,6 @@ from urllib.parse import urlencode
 import httpx
 from fastapi import Request, HTTPException
 from fastapi.responses import HTMLResponse
-
-
 from integrations.integration_item import IntegrationItem
 from redis_client import add_key_value_redis, get_value_redis, delete_key_redis, get_keys_with_prefix
 from utils.logger import log

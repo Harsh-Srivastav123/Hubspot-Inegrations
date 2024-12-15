@@ -18,7 +18,8 @@ app = FastAPI()
 origins = [
     "http://localhost:3000",  # React app address
     "http://127.0.0.1:3000"
-    "http://vector-hubspot.s3-website.ap-south-1.amazonaws.com",  # React app address
+    "http://vector-hubspot.s3-website.ap-south-1.amazonaws.com"
+    "*",  # React app address
 ]
 
 app.add_middleware(

@@ -1,0 +1,75 @@
+service: hubspot-oauth-proxy
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: ap-south-1
+  environment:
+    ALB_ENDPOINT: 'http://vector-shift-alb-861076819.ap-south-1.elb.amazonaws.com'
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - execute-api:Invoke
+          Resource: '*'
+
+functions:
+  proxy:
+    handler: handler.proxy
+    events:
+      # OAuth and Authorization
+      - http:
+          path: integrations/hubspot/authorize
+          method: post
+          cors: true
+      - http:
+          path: integrations/hubspot/oauth2callback
+          method: get
+          cors: true
+      - http:
+          path: integrations/hubspot/credentials
+          method: post
+          cors: true
+      - http:
+          path: integrations/hubspot/logout
+          method: post
+          cors: true
+      
+      # Contact Management
+      - http:
+          path: integrations/hubspot/contacts
+          method: post
+          cors: true
+      - http:
+          path: integrations/hubspot/contacts/{contact_id}
+          method: patch
+          cors: true
+      - http:
+          path: integrations/hubspot/contacts/{contact_id}
+          method: delete
+          cors: true
+      
+      # Data Loading
+      - http:
+          path: integrations/hubspot/load
+          method: post
+          cors: true
+
+      # Root endpoint
+      - http:
+          path: /
+          method: get
+          cors: true
+      
+      # Health check endpoint
+      - http:
+          path: health
+          method: get
+          cors: true
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!venv/**'
+    - '!.env'
