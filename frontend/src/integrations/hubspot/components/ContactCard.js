@@ -6,6 +6,7 @@ import {
     ExpandMore as ExpandMoreIcon,
     Phone as PhoneIcon
 } from '@mui/icons-material';
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import {
     Avatar,
     Box,
@@ -18,6 +19,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { formatContactName, formatDate, formatPhoneNumber } from '../utils/helpers';
+import { getGptResponse } from '../utils/api';
 
 const ContactCard = ({ 
     contact, 
@@ -27,27 +29,34 @@ const ContactCard = ({
 }) => {
     const [expanded, setExpanded] = useState(false);
 
+    console.log('SINGLE CONTACT --> ', contact)
+
     // Add null checks and default values
     const formattedName = formatContactName({
-        firstName: contact?.firstName || '',
-        lastName: contact?.lastName || ''
+        firstName: contact?.name || '',
     });
     
-    const formattedPhone = formatPhoneNumber(contact?.phone || '');
+    const formattedPhone = formatPhoneNumber(contact?.mobile || '');
     const lastModified = formatDate(contact?.lastModifiedDate || '');
 
     if (!contact) return null;
 
+
+    const aiResponseHandler = (contact) => {
+        getGptResponse({credentials, contactId: contact.id});
+    }
+
     return (
         <Card elevation={2} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardContent>
+                <button onClick={() => aiResponseHandler(contact)}><TipsAndUpdatesIcon /></button>
                 <Box display="flex" alignItems="center" sx={{ mb: 2 }}>
                     <Avatar sx={{ bgcolor: '#ff7a59', mr: 2 }}>
                         {formattedName.charAt(0)}
                     </Avatar>
                     <Box>
                         <Typography variant="h6" noWrap>
-                            {formattedName || 'No Name'}
+                            {contact.name}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
                             Last modified: {lastModified || 'N/A'}
@@ -86,7 +95,7 @@ const ContactCard = ({
                             variant="body2" 
                             noWrap
                             component="a"
-                            href={contact?.phone ? `tel:${contact.phone}` : undefined}
+                            href={contact?.mobile ? `tel:${contact.phone}` : undefined}
                             sx={{ 
                                 color: contact?.phone ? 'primary.main' : 'text.secondary',
                                 textDecoration: 'none',

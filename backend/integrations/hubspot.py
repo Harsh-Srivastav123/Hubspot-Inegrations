@@ -11,6 +11,8 @@ from redis_client import add_key_value_redis, get_value_redis, delete_key_redis,
 from utils.logger import log
 from utils.secrets import get_hubspot_secrets
 
+from openai_client import summarize_contact_ai
+
 # Get HubSpot configuration from secrets
 hubspot_config = get_hubspot_secrets()
 
@@ -242,6 +244,9 @@ async def get_items_hubspot(credentials: str) -> List[IntegrationItem]:
                     type='contact',
                     parent_id=metadata['company'],
                     parent_path_or_name=metadata['company'],
+                    company=metadata['company'],
+                    email=metadata['email'],
+                    phone=metadata['phone'],
                     visibility=True
                 )
             )
@@ -270,6 +275,7 @@ async def logout_hubspot_account(user_id: str, org_id: str):
 
 
 async def create_contact(credentials: str, contact_data: Dict) -> Dict:
+    log.info(f"Creating contact with data: {contact_data}")
     """Create a new HubSpot contact"""
     try:
         creds = json.loads(credentials)
@@ -277,14 +283,14 @@ async def create_contact(credentials: str, contact_data: Dict) -> Dict:
 
         if not access_token:
             log.error("No access token found in credentials")
-            raise HTTPException(401, detail="Invalid credentials")
+            raise HTTPException(status_code=401, detail="Invalid credentials")
 
         headers = {
             'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json'
         }
 
-        # Ensure all property values are strings, exclude notes field
+        # Map IntegrationItem fields to HubSpot properties
         properties = {
             "firstname": str(contact_data.get("firstname", "")),
             "lastname": str(contact_data.get("lastname", "")),
@@ -292,7 +298,6 @@ async def create_contact(credentials: str, contact_data: Dict) -> Dict:
             "phone": str(contact_data.get("phone", "")),
             "company": str(contact_data.get("company", ""))
         }
-
         # Log the request details for debugging
         log.info(f"Making request to HubSpot with properties: {properties}")
 
@@ -307,16 +312,23 @@ async def create_contact(credentials: str, contact_data: Dict) -> Dict:
             log.info(f"HubSpot response status: {response.status_code}")
             if response.status_code != 201:
                 log.error(f"HubSpot error response: {response.text}")
-                raise HTTPException(response.status_code, detail=f"Failed to create contact: {response.text}")
+                if response.status_code == 409:
+                    # Handle conflict error when contact already exists
+                    error_data = response.json()
+                    raise HTTPException(409, error_data.get("message", "Contact already exists"))
+                raise HTTPException(response.status_code, f"Failed to create contact: {response.text}")
 
             return response.json()
 
     except json.JSONDecodeError as e:
         log.error(f"Failed to parse credentials: {str(e)}")
-        raise HTTPException(400, detail="Invalid credentials format")
+        raise HTTPException(400, "Invalid credentials format")
+    except HTTPException as e:
+        # Re-raise HTTP exceptions with proper status code
+        raise e
     except Exception as e:
         log.error(f"Failed to create contact: {str(e)}")
-        raise HTTPException(500, detail=f"Failed to create contact: {str(e)}")
+        raise HTTPException(500, f"Failed to create contact: {str(e)}")
 
 
 async def update_contact(credentials: str, contact_id: str,
@@ -328,14 +340,14 @@ async def update_contact(credentials: str, contact_id: str,
 
         if not access_token:
             log.error("No access token found in credentials")
-            raise HTTPException(401, detail="Invalid credentials")
+            raise HTTPException(401, "Invalid credentials")
 
         headers = {
             'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json'
         }
 
-        # Ensure all property values are strings, similar to create_contact
+        # Map IntegrationItem fields to HubSpot properties
         properties = {
             "firstname": str(contact_data.get("firstname", "")),
             "lastname": str(contact_data.get("lastname", "")),
@@ -361,18 +373,16 @@ async def update_contact(credentials: str, contact_id: str,
             log.info(f"HubSpot response status: {response.status_code}")
             if response.status_code != 200:
                 log.error(f"HubSpot error response: {response.text}")
-                raise HTTPException(response.status_code,
-                                    detail=f"Failed to update contact: {response.text}")
+                raise HTTPException(response.status_code, f"Failed to update contact: {response.text}")
 
             return response.json()
 
     except json.JSONDecodeError as e:
         log.error(f"Failed to parse credentials: {str(e)}")
-        raise HTTPException(400, detail="Invalid credentials format")
+        raise HTTPException(400, "Invalid credentials format")
     except Exception as e:
         log.error(f"Failed to update contact: {str(e)}")
-        raise HTTPException(status_code=500,
-                            detail=f"Failed to update contact: {str(e)}")
+        raise HTTPException(500, f"Failed to update contact: {str(e)}")
 
 
 async def delete_contact(credentials: str, contact_id: str):
@@ -393,13 +403,54 @@ async def delete_contact(credentials: str, contact_id: str):
 
             if response.status_code != 204:
                 log.error(f"Failed to delete contact: {response.status_code}")
-                raise HTTPException(status_code=response.status_code,
-                                    detail="Failed to delete contact")
+                raise HTTPException(response.status_code, "Failed to delete contact")
 
             log.info(f"Successfully deleted contact {contact_id}")
             return {"status": "success", "message": "Contact deleted successfully"}
 
     except Exception as e:
         log.error(f"Failed to delete contact: {str(e)}")
-        raise HTTPException(status_code=500,
-                            detail=f"Failed to delete contact: {str(e)}")
+        raise HTTPException(500, f"Failed to delete contact: {str(e)}")
+
+
+async def summarize_contact(credentials: str, contact_id: str):
+    log.info(f"Summarizing contact{contact_id}  {credentials}")
+    try:
+        # Get contact data using existing function
+        creds = json.loads(credentials)
+        access_token = creds.get('access_token')
+
+        if not access_token:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+
+        # Fetch contact details
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{API_BASE_URL}/crm/v3/objects/contacts/{contact_id}",
+                headers=headers
+            )
+
+            if response.status_code != 200:
+                raise HTTPException(response.status_code, "Failed to fetch contact details")
+
+            contact_data = response.json()
+            # Create metadata object using existing function
+            metadata = await create_integration_item_metadata_object(contact_data)
+
+            # Generate summary
+            summary = await summarize_contact_ai(metadata)
+
+            return {"summary": summary}
+
+    except json.JSONDecodeError:
+        raise HTTPException(400, "Invalid credentials format")
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        log.error(f"Failed to summarize contact: {str(e)}")
+        raise HTTPException(500, f"Failed to summarize contact: {str(e)}")

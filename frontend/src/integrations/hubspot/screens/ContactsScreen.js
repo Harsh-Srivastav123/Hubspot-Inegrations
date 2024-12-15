@@ -39,6 +39,8 @@ const ContactsScreen = ({
         filters
     );
 
+    // console.log('CONTACTS:++++++++ ', contacts)
+
     return (
         <Box sx={{ 
             position: 'fixed',
@@ -100,7 +102,7 @@ const ContactsScreen = ({
 
             <Container maxWidth="lg" sx={{ py: 4 }}>
                 <ContactsList 
-                    contacts={filteredContacts}
+                    contacts={contacts}
                     isLoading={isLoading}
                     credentials={integrationParams.credentials}
                     onRefresh={() => fetchContacts({

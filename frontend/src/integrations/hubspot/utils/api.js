@@ -1,6 +1,20 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://9j03m9ro53.execute-api.ap-south-1.amazonaws.com/dev/integrations/hubspot';
+const getApiBaseUrl = async () => {
+  try {
+    // First try localhost
+    const response = await fetch('http://localhost:8000/health');
+    if (response.status === 200) {
+      return 'http://localhost:8000/integrations/hubspot';
+    }
+  } catch (error) {
+    console.log('Local server not available, using production API');
+  }
+  // Fall back to production URL if localhost fails
+  return 'https://9j03m9ro53.execute-api.ap-south-1.amazonaws.com/dev/integrations/hubspot';
+};
+
+const API_BASE_URL = await getApiBaseUrl();
 
 // Error handler utility
 const handleApiError = (error) => {
@@ -115,19 +129,7 @@ export const fetchContacts = async ({
             `${API_BASE_URL}/load`,
             formData
         );
-
-        // Transform the data to match the ContactCard requirements
-        const transformedContacts = response.data.map(contact => ({
-            id: contact.id,
-            firstName: contact.properties?.firstname || '',
-            lastName: contact.properties?.lastname || '',
-            email: contact.properties?.email || '',
-            phone: contact.properties?.phone || '',
-            company: contact.properties?.company || '',
-            lastModifiedDate: contact.properties?.lastmodifieddate || '',
-        }));
-
-        setContacts(transformedContacts);
+        setContacts(response.data);
     } catch (error) {
         const err = handleApiError(error);
         setError(err.message);
@@ -342,4 +344,26 @@ export const checkCredentials = async ({
         setError(err.message);
         return null;
     }
+};
+
+export const getGptResponse = async ({
+    credentials,
+    contactId
+}) => {
+    try {
+
+        const formData = new FormData();
+        formData.append('credentials', JSON.stringify(credentials));
+        formData.append('contact_id', JSON.stringify(contactId));
+
+        const response = await axios.post(
+            `${API_BASE_URL}/contacts/${contactId}/summarize`,
+            formData
+        );
+
+        return response.data;
+
+    } catch (error) {
+        console.error(error);   
+    } 
 };

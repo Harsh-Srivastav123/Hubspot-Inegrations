@@ -5,13 +5,13 @@ import uvicorn
 from fastapi import FastAPI, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from redis_client import redis_client
-from utils.logger import log
 from integrations.airtable import authorize_airtable, get_items_airtable, oauth2callback_airtable, \
     get_airtable_credentials
 from integrations.hubspot import authorize_hubspot, get_hubspot_credentials, get_items_hubspot, oauth2callback_hubspot, \
-    logout_hubspot_account, delete_contact, update_contact, create_contact
+    logout_hubspot_account, delete_contact, update_contact, create_contact, summarize_contact
 from integrations.notion import authorize_notion, get_items_notion, oauth2callback_notion, get_notion_credentials
+from redis_client import redis_client
+from utils.logger import log
 
 app = FastAPI()
 
@@ -139,6 +139,14 @@ async def delete_hubspot_contact(
         credentials: str = Form(...)
 ):
     return await delete_contact(credentials, contact_id)
+
+
+@app.post('/integrations/hubspot/contacts/{contact_id}/summarize')
+async def summarize_hubspot_contact(
+        contact_id: str,
+        credentials: str = Form(...)
+):
+    return await summarize_contact(credentials, contact_id)
 
 
 @app.get("/health")
