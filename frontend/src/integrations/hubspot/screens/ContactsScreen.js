@@ -1,15 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Box, Container, AppBar, Toolbar, Typography, Button, IconButton } from '@mui/material';
 import {
-    Refresh as RefreshIcon,
+    Add as AddIcon,
     Logout as LogoutIcon,
-    Add as AddIcon
+    Refresh as RefreshIcon
 } from '@mui/icons-material';
-import SearchBar from '../components/SearchBar';
-import ContactsList from '../components/ContactsList';
+import { AppBar, Box, Button, Container, IconButton, Toolbar, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 import ContactDialog from '../components/ContactDialog';
+import ContactsList from '../components/ContactsList';
+import SearchBar from '../components/SearchBar';
 import { fetchContacts, handleLogout } from '../utils/api';
-import { searchContacts, filterContacts } from '../utils/helpers';
 
 const ContactsScreen = ({ 
     user, 
