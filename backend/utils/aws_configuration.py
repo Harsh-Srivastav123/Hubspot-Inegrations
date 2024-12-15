@@ -17,6 +17,7 @@ def get_aws_client(service_name):
         boto3.client: Configured boto3 client for the requested service
     """
     config = Config(
+        region_name='ap-south-1',
         retries=dict(
             max_attempts=3
         )
@@ -38,6 +39,7 @@ def get_aws_client(service_name):
             service_name,
             aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
             aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+            region_name='ap-south-1',
             config=config
         )
         return client

@@ -2,8 +2,19 @@ import os
 
 import redis.asyncio as redis
 from kombu.utils.url import safequote
+from utils.secrets import get_aws_client
+import json
 
-redis_host = safequote(os.environ.get('REDIS_HOST', 'localhost'))
+try:
+    # Get Secrets Manager client
+    secrets_client = get_aws_client('secretsmanager')
+    response = secrets_client.get_secret_value(SecretId='redis-credentials')
+    secrets = json.loads(response['SecretString'])
+    redis_host = safequote(secrets.get('REDIS_HOST'))
+except Exception:
+    # Fall back to environment variable or localhost if secrets fail
+    redis_host = safequote(os.environ.get('REDIS_HOST', 'localhost'))
+
 redis_client = redis.Redis(host=redis_host, port=6379, db=0)
 
 
