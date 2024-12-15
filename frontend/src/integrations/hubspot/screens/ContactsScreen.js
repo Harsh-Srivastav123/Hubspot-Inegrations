@@ -34,10 +34,10 @@ const ContactsScreen = ({
         });
     }, [integrationParams.credentials]);
 
-    const filteredContacts = filterContacts(
-        searchContacts(contacts, searchQuery),
-        filters
-    );
+    // const filteredContacts = filterContacts(
+    //     searchContacts(contacts, searchQuery),
+    //     filters
+    // );
 
     // console.log('CONTACTS:++++++++ ', contacts)
 
