@@ -9,9 +9,8 @@ import httpx
 import requests
 from fastapi import Request, HTTPException
 from fastapi.responses import HTMLResponse
-
-from backend.integrations.integration_item import IntegrationItem
-from backend.redis_client import add_key_value_redis, get_value_redis, delete_key_redis
+from integrations.integration_item import IntegrationItem
+from redis_client import add_key_value_redis, get_value_redis, delete_key_redis
 
 CLIENT_ID = '15bd872b-594c-80a0-8abd-003722cff0f5'
 CLIENT_SECRET = 'secret_GIFW4DOJWg73OW2PfLanaTptrXttHvD3oqlCPpALL4l'
