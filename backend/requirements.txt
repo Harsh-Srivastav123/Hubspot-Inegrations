@@ -1,6 +1,7 @@
 amqp==5.3.1
 annotated-types==0.7.0
 anyio==4.7.0
+openai>=1.0.0
 boto3==1.35.81
 botocore==1.35.81
 certifi==2024.12.14
