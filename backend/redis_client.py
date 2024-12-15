@@ -1,14 +1,15 @@
+import json
 import os
 
 import redis.asyncio as redis
 from kombu.utils.url import safequote
+
 from utils.secrets import get_aws_client
-import json
 
 try:
     # Get Secrets Manager client
     secrets_client = get_aws_client('secretsmanager')
-    response = secrets_client.get_secret_value(SecretId='redis-credentials')
+    response = secrets_client.get_secret_value(SecretId='hubspot-credentials')
     secrets = json.loads(response['SecretString'])
     redis_host = safequote(secrets.get('REDIS_HOST'))
 except Exception:
@@ -55,7 +56,7 @@ async def get_keys_with_prefix(prefix):
 
     return items
 
+
 async def ping():
     """Check Redis connection by sending PING command"""
     return await redis_client.ping()
-
